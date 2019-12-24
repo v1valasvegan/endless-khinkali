@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -9,72 +10,75 @@ const change = 3;
 const jumpHeight = canvas.height * 0.1;
 
 class Background {
+  // eslint-disable-next-line class-methods-use-this
   draw() {
     ctx.fillStyle = '#92ADD0';
     ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-    )
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
     ctx.fillStyle = '#24913C';
     ctx.fillRect(
       0,
       canvas.height * 0.75,
       canvas.width,
       canvas.height,
-    )
+    );
   }
 }
 
 class Hero {
-  constructor () {
+  constructor() {
     this.isJumping = false;
     this.jumpDirection = 'up';
     this.height = canvas.height * 0.75 - 50;
   }
-  
-  handleTouch = (event) => {
+
+  handleTouch = () => {
     if (this.isJumping) {
       return;
     }
     this.jumpDirection = 'up';
     this.isJumping = true;
   };
-  
+
   draw() {
     ctx.fillStyle = 'white';
     document.addEventListener('click', this.handleTouch);
     let newHeight;
-    if(!this.isJumping) {
+    if (!this.isJumping) {
       newHeight = this.height;
     } else {
       newHeight = this.jumpDirection === 'up' ? this.height - change : this.height + change;
     }
     this.jumpDirection = this.height < jumpHeight ? 'down' : this.jumpDirection;
     this.height = newHeight;
-    
+
     ctx.fillRect(
       50,
       this.height,
       50,
       50,
-      );
-      
-      if (this.height > canvas.height * 0.75 - 51) {
-        this.isJumping = false;
-      }
+    );
+
+    if (this.height > canvas.height * 0.75 - 51) {
+      this.isJumping = false;
+    }
   }
 }
-  class Barrier {
+
+class Barrier {
+  // eslint-disable-next-line class-methods-use-this
   draw(timer) {
     ctx.fillStyle = '#A61000';
     ctx.fillRect(
-        500 - timer,
-        canvas.height * 0.75 - 80,
-        30,
-        80,
-    )
+      500 - timer,
+      canvas.height * 0.75 - 80,
+      30,
+      80,
+    );
   }
 }
 
@@ -98,8 +102,6 @@ class App {
 
     requestAnimationFrame(() => this.step());
   }
-
-
 }
 
 const app = new App();
