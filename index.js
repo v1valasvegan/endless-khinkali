@@ -1,3 +1,24 @@
+const getCoordinates = (obj) => {
+  const { x: x1, y: y1, width, height } = obj;
+  const x2 = x1 + width;
+  const y2 = y1 - height;
+  return ({
+    top: { x1, y1, x2, y1 },
+    right: { x2, y1, x2, y2 },
+    bottom: { x2, y2, x1, y2 },
+    left: { x1, y2, x1, y1 },
+  });
+};
+
+const intersects = (hero, item) => {
+	const { right: { x2: heroX2, y2: heroY2 }, left: { x1: heroX1 } } = hero;
+	const { top: { x1, y1, x2 } } = item;
+
+	//const isIntersecting = () => (heroX2 >= x1 && heroX2 <= x2 || heroX1 >= x1 && heroX2 <= x2) && heroY2 >= y1;
+	const isIntersecting = () => heroX2 >= x1 && heroX2 <= x2 && heroY2 <= y1;
+	return isIntersecting();
+}
+
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -31,7 +52,10 @@ class Hero {
   constructor () {
     this.isJumping = false;
     this.jumpDirection = 'up';
-    this.height = canvas.height * 0.75 - 50;
+    this.x = 50;
+    this.y = canvas.height * 0.75 - 50; 
+    this.width = 50;
+    this.height = 50;
   }
   
   handleTouch = (event) => {
@@ -45,35 +69,44 @@ class Hero {
   draw() {
     ctx.fillStyle = 'white';
     document.addEventListener('click', this.handleTouch);
-    let newHeight;
+    let newAltitude;
     if(!this.isJumping) {
-      newHeight = this.height;
+      newAltitude = this.y;
     } else {
-      newHeight = this.jumpDirection === 'up' ? this.height - change : this.height + change;
+      newAltitude = this.jumpDirection === 'up' ? this.y - change : this.y + change;
     }
-    this.jumpDirection = this.height < jumpHeight ? 'down' : this.jumpDirection;
-    this.height = newHeight;
+    this.jumpDirection = this.y < jumpHeight ? 'down' : this.jumpDirection;
+    this.y = newAltitude;
     
     ctx.fillRect(
-      50,
+      this.x,
+      this.y,
+      this.width,
       this.height,
-      50,
-      50,
       );
       
-      if (this.height > canvas.height * 0.75 - 51) {
+      if (this.y > canvas.height * 0.75 - 51) {
         this.isJumping = false;
       }
   }
 }
   class Barrier {
+    constructor () {
+      this.x = 500;
+      this.y = canvas.height * 0.75 - 80; 
+      this.width = 30;
+			this.height = 80;
+		
+  }
+
   draw(timer) {
     ctx.fillStyle = '#A61000';
+		this.x -= timer;
     ctx.fillRect(
-        500 - timer,
-        canvas.height * 0.75 - 80,
-        30,
-        80,
+        this.x,
+        this.y,
+        this.width,
+        this.height,
     )
   }
 }
@@ -83,17 +116,29 @@ class App {
     this.background = new Background();
     this.hero = new Hero();
     this.barrier = new Barrier();
-    this.timer = 0;
+		this.timer = 1;
+		document.addEventListener('click', () => {
+			console.log(getCoordinates(this.barrier));
+			console.log(getCoordinates(this.hero));
+		})
   }
-
+  
   draw() {
-    this.background.draw();
-    this.hero.draw();
-    this.barrier.draw(this.timer);
-  }
+		const { hero, barrier, background, timer } = this;
+    background.draw();
+    hero.draw();
+		barrier.draw(timer);
+		const heroCoord = getCoordinates(hero);
+		const barrierCoord = getCoordinates(barrier);
+		//console.log(intersects(heroCoord, barrierCoord));
+		if (intersects(heroCoord, barrierCoord)) {
+			console.log('Hallelujah!!!');
+		}
+	 }
+
+	 
 
   step() {
-    this.timer += 1;
     this.draw();
 
     requestAnimationFrame(() => this.step());
@@ -105,3 +150,6 @@ class App {
 const app = new App();
 app.draw();
 requestAnimationFrame(() => app.step());
+
+
+const newHero = new Hero();
