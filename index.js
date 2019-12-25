@@ -1,22 +1,14 @@
-const getCoordinates = (obj) => {
-  const { x: x1, y: y1, width, height } = obj;
-  const x2 = x1 + width;
-  const y2 = y1 - height;
-  return ({
-    top: { x1, y1, x2, y1 },
-    right: { x2, y1, x2, y2 },
-    bottom: { x2, y2, x1, y2 },
-    left: { x1, y2, x1, y1 },
-  });
-};
+const getRandomInt = (start, end) => start + Math.floor(Math.random() * (end - start));
 
 const intersects = (hero, item) => {
-	const { right: { x2: heroX2, y2: heroY2 }, left: { x1: heroX1 } } = hero;
-	const { top: { x1, y1, x2 } } = item;
-
-	//const isIntersecting = () => (heroX2 >= x1 && heroX2 <= x2 || heroX1 >= x1 && heroX2 <= x2) && heroY2 >= y1;
-	const isIntersecting = () => heroX2 >= x1 && heroX2 <= x2 && heroY2 <= y1;
-	return isIntersecting();
+  const { x: hx1, y: hy1, width: hwidth, height: hheight } = hero;
+  const { x: ix1, y: iy1, width: iwidth } = item;
+  const hx2 = hx1 + hwidth;
+  const hy2 = hy1 + hheight;
+  const ix2 = ix1 + iwidth;
+  // console.log(`hero: x1: ${hx1}, x2: ${hx2}, y2: ${hy2}`);
+  // console.log(`barrier: x1: ${ix1}, x2: ${ix2}, y1: ${iy1}`);
+  return (hx2 >= ix1 && hx2 <= ix2 || hx1 >= ix1 && hx2 <= ix2) && hy2 >= iy1;
 }
 
 const canvas = document.createElement('canvas');
@@ -27,7 +19,9 @@ const root = document.getElementById('root');
 root.appendChild(canvas);
 
 const change = 3;
-const jumpHeight = canvas.height * 0.1;
+const jumpHeight = canvas.height * 0.4;
+const rndRangeStart = 2000;
+const rndRangeEnd = 5000;
 
 class Background {
   draw() {
@@ -52,10 +46,10 @@ class Hero {
   constructor () {
     this.isJumping = false;
     this.jumpDirection = 'up';
-    this.x = 50;
-    this.y = canvas.height * 0.75 - 50; 
-    this.width = 50;
     this.height = 50;
+    this.width = 50;
+    this.x = 50;
+    this.y = canvas.height * 0.75 - this.height; 
   }
   
   handleTouch = (event) => {
@@ -90,13 +84,13 @@ class Hero {
       }
   }
 }
+
   class Barrier {
-    constructor () {
-      this.x = 500;
-      this.y = canvas.height * 0.75 - 80; 
+    constructor (height) {
       this.width = 30;
-			this.height = 80;
-		
+      this.height = height;
+      this.x = canvas.width; 
+      this.y = canvas.height * 0.75 - this.height;
   }
 
   draw(timer) {
@@ -115,41 +109,67 @@ class App {
   constructor() {
     this.background = new Background();
     this.hero = new Hero();
-    this.barrier = new Barrier();
-		this.timer = 1;
-		document.addEventListener('click', () => {
-			console.log(getCoordinates(this.barrier));
-			console.log(getCoordinates(this.hero));
-		})
+    this.barriers = [];
+    this.timer = 1;
+    this.isTimerOn = false;
+    this.score = 0;
   }
-  
+
+  purge = () => {
+    const { barriers } = this;
+    const { length } = barriers;
+    if (length === 0) {
+      return;
+    }
+    const lastItem = barriers[length - 1];
+    if (lastItem && lastItem.x + lastItem.width < 0) {
+      barriers.pop();     
+    }
+  }
+    
+  addBarrier = () => {
+    if (this.isTimerOn) {
+      return;
+    }
+    this.isTimerOn = true;
+
+    const makeBarrier = () => {
+      const newBarrier = new Barrier(getRandomInt(50, 150));
+      this.barriers = [newBarrier, ...this.barriers];
+      this.isTimerOn = false;
+    }
+    setTimeout(() => makeBarrier(), getRandomInt(rndRangeStart, rndRangeEnd));
+  }
+
+  countScore = () => {
+    const { hero, barriers } = this;
+    const { x } = hero;
+    const coordinates = barriers.map((item) => item.x + item.width);
+    this.score = coordinates.find((x2) => x2 === x) ? this.score + 1 : this.score;
+  }
+
   draw() {
-		const { hero, barrier, background, timer } = this;
+		const { hero, barriers, background, timer, addBarrier, countScore, purge } = this;
     background.draw();
     hero.draw();
-		barrier.draw(timer);
-		const heroCoord = getCoordinates(hero);
-		const barrierCoord = getCoordinates(barrier);
-		//console.log(intersects(heroCoord, barrierCoord));
-		if (intersects(heroCoord, barrierCoord)) {
+    addBarrier();
+    countScore();
+    purge();
+		barriers.forEach((b) => {
+      b.draw(timer);
+		  if (intersects(hero, b)) {
 			console.log('Hallelujah!!!');
-		}
-	 }
-
-	 
+		  }
+    })
+  }
 
   step() {
     this.draw();
-
     requestAnimationFrame(() => this.step());
   }
-
-
 }
 
 const app = new App();
 app.draw();
 requestAnimationFrame(() => app.step());
 
-
-const newHero = new Hero();
