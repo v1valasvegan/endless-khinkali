@@ -1,4 +1,19 @@
 /* eslint-disable max-classes-per-file */
+const getRandomInt = (start, end) => start + Math.floor(Math.random() * (end - start));
+
+const intersects = (hero, item) => {
+  const {
+    x: hx1, y: hy1, width: hwidth, height: hheight,
+  } = hero;
+  const { x: ix1, y: iy1, width: iwidth } = item;
+  const hx2 = hx1 + hwidth;
+  const hy2 = hy1 + hheight;
+  const ix2 = ix1 + iwidth;
+  // console.log(`hero: x1: ${hx1}, x2: ${hx2}, y2: ${hy2}`);
+  // console.log(`barrier: x1: ${ix1}, x2: ${ix2}, y1: ${iy1}`);
+  return ((hx2 >= ix1 && hx2 <= ix2) || (hx1 >= ix1 && hx2 <= ix2)) && hy2 >= iy1;
+};
+
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -7,7 +22,9 @@ const root = document.getElementById('root');
 root.appendChild(canvas);
 
 const change = 3;
-const jumpHeight = canvas.height * 0.1;
+const jumpHeight = canvas.height * 0.4;
+const rndRangeStart = 2000;
+const rndRangeEnd = 5000;
 
 class Background {
   // eslint-disable-next-line class-methods-use-this
@@ -33,7 +50,10 @@ class Hero {
   constructor() {
     this.isJumping = false;
     this.jumpDirection = 'up';
-    this.height = canvas.height * 0.75 - 50;
+    this.height = 50;
+    this.width = 50;
+    this.x = 50;
+    this.y = canvas.height * 0.75 - this.height;
   }
 
   handleTouch = () => {
@@ -47,37 +67,44 @@ class Hero {
   draw() {
     ctx.fillStyle = 'white';
     document.addEventListener('click', this.handleTouch);
-    let newHeight;
+    let newAltitude;
     if (!this.isJumping) {
-      newHeight = this.height;
+      newAltitude = this.y;
     } else {
-      newHeight = this.jumpDirection === 'up' ? this.height - change : this.height + change;
+      newAltitude = this.jumpDirection === 'up' ? this.y - change : this.y + change;
     }
-    this.jumpDirection = this.height < jumpHeight ? 'down' : this.jumpDirection;
-    this.height = newHeight;
+    this.jumpDirection = this.y < jumpHeight ? 'down' : this.jumpDirection;
+    this.y = newAltitude;
 
     ctx.fillRect(
-      50,
+      this.x,
+      this.y,
+      this.width,
       this.height,
-      50,
-      50,
     );
 
-    if (this.height > canvas.height * 0.75 - 51) {
+    if (this.y > canvas.height * 0.75 - 51) {
       this.isJumping = false;
     }
   }
 }
 
 class Barrier {
-  // eslint-disable-next-line class-methods-use-this
+  constructor(height) {
+    this.width = 30;
+    this.height = height;
+    this.x = canvas.width;
+    this.y = canvas.height * 0.75 - this.height;
+  }
+
   draw(timer) {
     ctx.fillStyle = '#A61000';
+    this.x -= timer;
     ctx.fillRect(
-      500 - timer,
-      canvas.height * 0.75 - 80,
-      30,
-      80,
+      this.x,
+      this.y,
+      this.width,
+      this.height,
     );
   }
 }
@@ -86,20 +113,64 @@ class App {
   constructor() {
     this.background = new Background();
     this.hero = new Hero();
-    this.barrier = new Barrier();
-    this.timer = 0;
+    this.barriers = [];
+    this.timer = 1;
+    this.isTimerOn = false;
+    this.score = 0;
+  }
+
+  purge = () => {
+    const { barriers } = this;
+    const { length } = barriers;
+    if (length === 0) {
+      return;
+    }
+    const lastItem = barriers[length - 1];
+    if (lastItem && lastItem.x + lastItem.width < 0) {
+      barriers.pop();
+    }
+  }
+
+  addBarrier = () => {
+    if (this.isTimerOn) {
+      return;
+    }
+    this.isTimerOn = true;
+
+    const makeBarrier = () => {
+      const newBarrier = new Barrier(getRandomInt(50, 150));
+      this.barriers = [newBarrier, ...this.barriers];
+      this.isTimerOn = false;
+    };
+    setTimeout(() => makeBarrier(), getRandomInt(rndRangeStart, rndRangeEnd));
+  }
+
+  countScore = () => {
+    const { hero, barriers } = this;
+    const { x } = hero;
+    const coordinates = barriers.map((item) => item.x + item.width);
+    this.score = coordinates.find((x2) => x2 === x) ? this.score + 1 : this.score;
   }
 
   draw() {
-    this.background.draw();
-    this.hero.draw();
-    this.barrier.draw(this.timer);
+    const {
+      hero, barriers, background, timer, addBarrier, countScore, purge,
+    } = this;
+    background.draw();
+    hero.draw();
+    addBarrier();
+    countScore();
+    purge();
+    barriers.forEach((b) => {
+      b.draw(timer);
+      if (intersects(hero, b)) {
+        console.log('Hallelujah!!!');
+      }
+    });
   }
 
   step() {
-    this.timer += 1;
     this.draw();
-
     requestAnimationFrame(() => this.step());
   }
 }
