@@ -16,6 +16,7 @@
   "scripts": {
     "test": "test"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/v1valasvegan/endless-khinkali.git"
