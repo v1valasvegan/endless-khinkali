@@ -1,16 +1,18 @@
 /* eslint-disable import/extensions */
 /* eslint-disable max-classes-per-file */
-import { rndRangeStart, rndRangeEnd } from '../const.js';
+import { barrierHeightRange, delayRange } from '../const.js';
 import getRandomInt from '../getRandomInt.js';
 import Hero from './Hero.js';
 import Barrier from './Barrier.js';
 import Background from './Background.js';
+import Bonus from './Bonus.js';
 import intersects from '../intersects.js';
 
 export default class App {
   constructor() {
     this.background = new Background();
     this.hero = new Hero();
+    this.bonus = new Bonus(20);
     this.barriers = [];
     this.timer = 1;
     this.isTimerOn = false;
@@ -36,11 +38,11 @@ export default class App {
     this.isTimerOn = true;
 
     const makeBarrier = () => {
-      const newBarrier = new Barrier(getRandomInt(50, 150));
+      const newBarrier = new Barrier(getRandomInt(...barrierHeightRange));
       this.barriers = [newBarrier, ...this.barriers];
       this.isTimerOn = false;
     };
-    setTimeout(() => makeBarrier(), getRandomInt(rndRangeStart, rndRangeEnd));
+    setTimeout(() => makeBarrier(), getRandomInt(...delayRange));
   }
 
   countScore = () => {
@@ -52,10 +54,11 @@ export default class App {
 
   draw() {
     const {
-      hero, barriers, background, timer, addBarrier, countScore, purge,
+      hero, barriers, background, timer, addBarrier, countScore, purge, bonus,
     } = this;
     background.draw();
     hero.draw();
+    bonus.draw();
     addBarrier();
     countScore();
     purge();
