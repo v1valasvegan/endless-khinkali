@@ -1,5 +1,3 @@
-/* eslint-disable import/extensions */
-/* eslint-disable max-classes-per-file */
 import { barrierHeightRange, delayRange } from '../const.js';
 import getRandomInt from '../getRandomInt.js';
 import Hero from './Hero.js';

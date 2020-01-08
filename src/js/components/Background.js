@@ -1,5 +1,3 @@
-/* eslint-disable import/extensions */
-/* eslint-disable class-methods-use-this */
 import { canvas, ctx } from '../canvas.js';
 
 export default class Background {

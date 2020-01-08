@@ -1,4 +1,3 @@
-/* eslint-disable import/extensions */
 import { canvas, ctx } from '../canvas.js';
 import { jumpHeight, change } from '../const.js';
 

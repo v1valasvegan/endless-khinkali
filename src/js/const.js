@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/extensions
 import { canvas } from './canvas.js';
 
 export const change = 3;

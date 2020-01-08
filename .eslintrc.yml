@@ -16,3 +16,5 @@ extends:
 
 rules:
   no-console: 0
+  import/extensions: off
+  class-methods-use-this: off
