@@ -1,23 +1,22 @@
 import { canvas, ctx } from '../canvas.js';
+import { bonusWidth } from '../const.js';
 
 export default class Bonus {
-  constructor(radius) {
-    this.radius = radius;
+  constructor(y) {
+    this.width = bonusWidth;
+    this.heigth = bonusWidth;
     this.x = canvas.width;
-    this.y = 10;
+    this.y = y;
   }
 
   draw(timer) {
-    ctx.fillStyle = 'green';
+    ctx.fillStyle = 'yellow';
     this.x -= timer;
-    ctx.beginPath();
-    ctx.arc(
+    ctx.fillRect(
       this.x,
       this.y,
-      this.radius,
-      0,
-      360,
+      this.width,
+      this.heigth,
     );
-    ctx.fill();
   }
 }

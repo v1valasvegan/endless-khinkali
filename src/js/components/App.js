@@ -1,4 +1,4 @@
-import { barrierHeightRange, delayRange } from '../const.js';
+import { barrierHeightRange, barrierDelayRange, bonusHeightRange, bonusDelayRange } from '../const.js';
 import getRandomInt from '../getRandomInt.js';
 import Hero from './Hero.js';
 import Barrier from './Barrier.js';
@@ -10,10 +10,11 @@ export default class App {
   constructor() {
     this.background = new Background();
     this.hero = new Hero();
-    this.bonus = new Bonus(20);
-    this.barriers = [];
+    this.barriers = [new Barrier(getRandomInt(...barrierHeightRange))];
+    this.bonuses = [];
     this.timer = 1;
-    this.isTimerOn = false;
+    this.isBonusTimerOn = false;
+    this.isBarrierTimerOn = false;
     this.score = 0;
   }
 
@@ -30,17 +31,31 @@ export default class App {
   }
 
   addBarrier = () => {
-    if (this.isTimerOn) {
+    if (this.isBarrierTimerOn) {
       return;
     }
-    this.isTimerOn = true;
+    this.isBarrierTimerOn = true;
 
     const makeBarrier = () => {
       const newBarrier = new Barrier(getRandomInt(...barrierHeightRange));
       this.barriers = [newBarrier, ...this.barriers];
-      this.isTimerOn = false;
+      this.isBarrierTimerOn = false;
     };
-    setTimeout(() => makeBarrier(), getRandomInt(...delayRange));
+    setTimeout(() => makeBarrier(), getRandomInt(...barrierDelayRange));
+  }
+
+  addBonus = () => {
+    if (this.isBonusTimerOn) {
+      return;
+    }
+    this.isBonusTimerOn = true;
+
+    const makeBonus = () => {
+      const newBonus = new Bonus(getRandomInt(...bonusHeightRange));
+      this.bonuses = [newBonus, ...this.bonuses];
+      this.isBonusTimerOn = false;
+    };
+    setTimeout(() => makeBonus(), getRandomInt(...bonusDelayRange));
   }
 
   countScore = () => {
@@ -52,18 +67,24 @@ export default class App {
 
   draw() {
     const {
-      hero, barriers, background, timer, addBarrier, countScore, purge, bonus,
+      hero, barriers, background, timer, addBarrier, countScore, purge, addBonus, bonuses,
     } = this;
     background.draw();
     hero.draw();
-    bonus.draw();
     addBarrier();
+    addBonus();
     countScore();
     purge();
     barriers.forEach((b) => {
       b.draw(timer);
       if (intersects(hero, b)) {
         console.log('Hallelujah!!!');
+      }
+    });
+    bonuses.forEach((b) => {
+      b.draw(timer);
+      if (intersects(hero, b)) {
+        console.log('Bonus');
       }
     });
   }
