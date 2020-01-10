@@ -1,4 +1,9 @@
-import { barrierHeightRange, barrierDelayRange, bonusHeightRange, bonusDelayRange } from '../const.js';
+import {
+  barrierHeightRange,
+  barrierDelayRange,
+  bonusHeightRange,
+  bonusDelayRange,
+} from '../const.js';
 import getRandomInt from '../getRandomInt.js';
 import Hero from './Hero.js';
 import Barrier from './Barrier.js';
@@ -72,7 +77,7 @@ export default class App {
     background.draw();
     hero.draw();
     addBarrier();
-    // addBonus();
+    addBonus();
     countScore();
     purge();
     barriers.forEach((b) => {
