@@ -72,7 +72,7 @@ export default class App {
     background.draw();
     hero.draw();
     addBarrier();
-    addBonus();
+    // addBonus();
     countScore();
     purge();
     barriers.forEach((b) => {
@@ -84,7 +84,7 @@ export default class App {
     bonuses.forEach((b) => {
       b.draw(timer);
       if (intersects(hero, b)) {
-        console.log('Bonus');
+        this.bonuses = this.bonuses.filter((i) => i !== b);
       }
     });
   }
