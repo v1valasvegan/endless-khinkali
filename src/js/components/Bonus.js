@@ -4,7 +4,7 @@ import { bonusWidth } from '../const.js';
 export default class Bonus {
   constructor(y) {
     this.width = bonusWidth;
-    this.heigth = bonusWidth;
+    this.height = bonusWidth;
     this.x = canvas.width;
     this.y = y;
   }
@@ -16,7 +16,7 @@ export default class Bonus {
       this.x,
       this.y,
       this.width,
-      this.heigth,
+      this.height,
     );
   }
 }
