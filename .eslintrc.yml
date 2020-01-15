@@ -19,3 +19,4 @@ rules:
   import/extensions: off
   class-methods-use-this: off
   object-curly-newline: off
+  no-param-reassign: off
