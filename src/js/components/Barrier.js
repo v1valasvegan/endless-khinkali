@@ -12,17 +12,19 @@ export default class Barrier {
   draw(timer) {
     ctx.fillStyle = '#A61000';
     this.x -= timer;
-    // const img = new Image(this.width, this.height);
-    // // eslint-disable-next-line global-require
-    // img.src = require('/barrier.png');
-    // ctx.drawImage(
-    //   img,
-    //   this.x,
-    //   this.y,
-    //   this.width,
-    //   this.height,
-    // );
+    const img = new Image(this.width, this.height);
+    img.src = './barrier.png';
+    ctx.drawImage(
+      img,
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+    );
   }
 }
-const newImg = new Image(10, 20);
-newImg.src = '/barrier.png';
+const newImg = document.createElement('img');
+newImg.src = './barrier.png';
+
+console.log(newImg);
+console.log(newImg.src);
