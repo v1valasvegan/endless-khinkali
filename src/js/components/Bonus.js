@@ -1,10 +1,11 @@
 import { canvas, ctx } from '../canvas.js';
-import { bonusWidth } from '../const.js';
+import { bonusWidth, bonusSrc, bonusHeight } from '../const.js';
+import makeImg from '../makeImg.js';
 
 export default class Bonus {
   constructor(y) {
     this.width = bonusWidth;
-    this.height = bonusWidth;
+    this.height = bonusHeight;
     this.x = canvas.width;
     this.y = y;
   }
@@ -12,7 +13,8 @@ export default class Bonus {
   draw(timer) {
     ctx.fillStyle = 'yellow';
     this.x -= timer;
-    ctx.fillRect(
+    ctx.drawImage(
+      makeImg(this.width, this.height, bonusSrc),
       this.x,
       this.y,
       this.width,

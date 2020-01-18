@@ -1,9 +1,10 @@
 import {
-  barrierHeightRange,
+  // barrierHeightRange,
   barrierDelayRange,
   bonusHeightRange,
   bonusDelayRange,
 } from '../const.js';
+import { ctx } from '../canvas.js';
 import getRandomInt from '../getRandomInt.js';
 import Hero from './Hero.js';
 import Barrier from './Barrier.js';
@@ -16,9 +17,9 @@ export default class App {
   constructor() {
     this.background = new Background();
     this.hero = new Hero();
-    this.barriers = [new Barrier(getRandomInt(...barrierHeightRange))];
+    this.barriers = [new Barrier(50)];
     this.bonuses = [];
-    this.timer = 1;
+    this.timer = 1.5;
     this.isBonusTimerOn = false;
     this.isBarrierTimerOn = false;
     this.score = 0;
@@ -33,7 +34,7 @@ export default class App {
     this.isBarrierTimerOn = true;
 
     const makeBarrier = () => {
-      const newBarrier = new Barrier(getRandomInt(...barrierHeightRange));
+      const newBarrier = new Barrier(50);
       this.barriers = [...this.barriers, newBarrier];
       this.isBarrierTimerOn = false;
     };
@@ -81,6 +82,15 @@ export default class App {
         this.score += 10;
       }
     });
+    // eslint-disable-next-line no-unused-vars
+    const [head, ...rest] = barriers;
+    ctx.font = '20px serif';
+    ctx.fillStyle = 'black';
+    ctx.fillText(`Счёт: ${this.score}`, 10, 30);
+    ctx.fillText(`x1: ${head.x}`, 40, 70);
+    ctx.fillText(`x2: ${hero.x + hero.width}`, 40, 100);
+    ctx.fillText(`x2: ${head.x + head.width}`, 40, 130);
+    ctx.fillText(`width: ${head.width}`, 40, 150);
   }
 
   step() {

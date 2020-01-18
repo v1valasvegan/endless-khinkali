@@ -1,12 +1,13 @@
 import { canvas, ctx } from '../canvas.js';
-import { jumpHeight, change } from '../const.js';
+import { jumpHeight, change, heroSrc } from '../const.js';
+import makeImg from '../makeImg.js';
 
 export default class Hero {
   constructor() {
     this.isJumping = false;
     this.jumpDirection = 'up';
-    this.height = 50;
-    this.width = 50;
+    this.height = 80;
+    this.width = 60;
     this.x = 50;
     this.y = canvas.height * 0.75 - this.height;
   }
@@ -31,14 +32,16 @@ export default class Hero {
       this.jumpDirection = this.y < jumpHeight ? 'down' : this.jumpDirection;
       this.y = newAltitude;
 
-      ctx.fillRect(
+      ctx.drawImage(
+        makeImg(this.width, this.height, heroSrc),
         this.x,
         this.y,
         this.width,
         this.height,
       );
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
 
-      if (this.y > canvas.height * 0.75 - 51) {
+      if (this.y > canvas.height * 0.75 - this.height - 1) {
         this.isJumping = false;
       }
     }
