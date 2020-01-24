@@ -1,5 +1,5 @@
 import {
-  // barrierHeightRange,
+  barrierHeightRange,
   barrierDelayRange,
   bonusHeightRange,
   bonusDelayRange,
@@ -11,13 +11,12 @@ import Barrier from './Barrier.js';
 import Background from './Background.js';
 import Bonus from './Bonus.js';
 import intersects from '../intersects.js';
-import reload from '../reload.js';
 
 export default class App {
   constructor() {
     this.background = new Background();
     this.hero = new Hero();
-    this.barriers = [new Barrier(50)];
+    this.barriers = [new Barrier((getRandomInt(...barrierHeightRange)))];
     this.bonuses = [];
     this.timer = 1.5;
     this.isBonusTimerOn = false;
@@ -34,10 +33,11 @@ export default class App {
     this.isBarrierTimerOn = true;
 
     const makeBarrier = () => {
-      const newBarrier = new Barrier(50);
+      const newBarrier = new Barrier(getRandomInt(...barrierHeightRange));
       this.barriers = [...this.barriers, newBarrier];
       this.isBarrierTimerOn = false;
     };
+
     setTimeout(() => makeBarrier(), getRandomInt(...barrierDelayRange));
   }
 
@@ -55,6 +55,10 @@ export default class App {
     setTimeout(() => makeBonus(), getRandomInt(...bonusDelayRange));
   }
 
+  reloadApp = () => {
+    this.barriers = [];
+  }
+
   draw() {
     const {
       hero, barriers, background, timer, addBarrier, purge, addBonus, bonuses,
@@ -64,17 +68,24 @@ export default class App {
     addBarrier();
     addBonus();
     this.bonuses = purge(bonuses);
-    this.barriers = purge(barriers);
-    barriers.forEach((b) => {
-      const { x: hx } = hero;
-      b.draw(timer);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const b of barriers) {
       if (intersects(hero, b)) {
-        reload();
+        console.log('Intersection');
+        this.barriers = [];
+        this.bonuses = [];
+        this.isBonusTimerOn = false;
+        this.isBarrierTimerOn = false;
+        this.score = 0;
+        window.location.reload(true);
+        break;
       }
-      if (b.x + b.width === hx) {
+      if (b.x + b.width < 0) {
         this.score += 1;
+        this.barriers = purge(barriers);
       }
-    });
+      b.draw(timer);
+    }
     bonuses.forEach((b) => {
       b.draw(timer);
       if (intersects(hero, b)) {
@@ -82,15 +93,9 @@ export default class App {
         this.score += 10;
       }
     });
-    // eslint-disable-next-line no-unused-vars
-    const [head, ...rest] = barriers;
     ctx.font = '20px serif';
     ctx.fillStyle = 'black';
     ctx.fillText(`Счёт: ${this.score}`, 10, 30);
-    ctx.fillText(`x1: ${head.x}`, 40, 70);
-    ctx.fillText(`x2: ${hero.x + hero.width}`, 40, 100);
-    ctx.fillText(`x2: ${head.x + head.width}`, 40, 130);
-    ctx.fillText(`width: ${head.width}`, 40, 150);
   }
 
   step() {

@@ -39,7 +39,6 @@ export default class Hero {
         this.width,
         this.height,
       );
-      ctx.strokeRect(this.x, this.y, this.width, this.height);
 
       if (this.y > canvas.height * 0.75 - this.height - 1) {
         this.isJumping = false;
