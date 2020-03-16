@@ -7,3 +7,5 @@
 
 ### Controls:
 - Click - jump up
+
+<input type="text" value="fufufu" />
